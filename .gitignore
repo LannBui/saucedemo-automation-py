@@ -1,0 +1,24 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+python-selenium-venv*/
+.env/
+*.egg-info/
+
+# PyCharm
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Reports / logs
+reports/
+*.log
+
+# ChromeDriver / WebDrivers
+*.exe
+.wdm/

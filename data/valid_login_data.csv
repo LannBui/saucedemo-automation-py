@@ -1,0 +1,3 @@
+username,password,expected_error
+standard_user,secret_sauce,
+problem_user,secret_sauce,
