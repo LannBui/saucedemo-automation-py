@@ -1,0 +1,5 @@
+first_name,last_name,postal_code,expected_error
+,Smith,12345,Error: First Name is required
+John,,12345,Error: Last Name is required
+John,Doe,,Error: Postal Code is required
+,,,"Error: First Name is required"

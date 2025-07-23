@@ -1,13 +1,16 @@
 import pytest
 from utils.driver_factory import get_driver
 
-@pytest.fixture
+@pytest.fixture(params=["chrome"])
 def driver(request):
-    browser = request.config.getoption("--browser") or "chrome"
-    driver = get_driver(browser)
+    browser = request.param
+    incognito = request.config.getoption("--incognito")
+    headless = request.config.getoption("--headless")
+    driver = get_driver(browser_name=browser, incognito=incognito, headless=headless)
     driver.maximize_window()
     yield driver
     driver.quit()
 
 def pytest_addoption(parser):
-    parser.addoption("--browser", action="store", default="chrome", help="Browser to use for tests")
+    parser.addoption("--incognito", action="store_true", help="Run browser in incognito/private mode")
+    parser.addoption("--headless", action="store_true", help="Run browser in headless mode")
