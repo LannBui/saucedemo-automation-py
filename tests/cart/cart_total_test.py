@@ -1,4 +1,5 @@
 import pytest
+import allure
 
 from pages.checkout_page import CheckoutPage
 from pages.login_page import LoginPage
@@ -7,17 +8,21 @@ from pages.cart_page import CartPage
 from pages.summary_page import SummaryPage
 
 @pytest.mark.usefixtures("driver")
+@allure.epic("Cart Functionality")
+@allure.feature("Cart Totals")
 class TestCartTotals:
     @pytest.fixture(autouse=True)
-    def setup_pages(self, driver):
+    def setup(self, driver):
         self.driver = driver
         self.login_page = LoginPage(driver)
         self.product_page = ProductPage(driver)
         self.cart_page = CartPage(driver)
         self.summary_page = SummaryPage(driver)
         self.checkout_page = CheckoutPage(driver)
-        self.driver.get("https://www.saucedemo.com/")
-        self.login_page.login("standard_user", "secret_sauce")
+        with allure.step("Open Saucedemo homepage"):
+            self.driver.get("https://www.saucedemo.com/")
+        with allure.step("Login as standard_user"):
+            self.login_page.login("standard_user", "secret_sauce")
 
     @pytest.mark.full
     @pytest.mark.regression

@@ -1,5 +1,6 @@
 import pytest
 from pyexpat.errors import messages
+import allure
 
 from pages.login_page import LoginPage
 from pages.product_page import ProductPage
@@ -9,9 +10,11 @@ from pages.summary_page import SummaryPage
 from pages.confirmation_page import ConfirmationPage
 
 @pytest.mark.usefixtures("driver")
+@allure.epic("Checkout")
+@allure.feature("Checkout Flow")
 class TestCheckoutFlow:
     @pytest.fixture(autouse=True)
-    def setup_pages(self, driver):
+    def setup(self, driver):
         self.driver = driver
         self.login_page = LoginPage(driver)
         self.product_page = ProductPage(driver)
@@ -19,8 +22,10 @@ class TestCheckoutFlow:
         self.checkout_page = CheckoutPage(driver)
         self.summary_page = SummaryPage(driver)
         self.confirmation_page = ConfirmationPage(driver)
-        self.driver.get("https://www.saucedemo.com/")
-        self.login_page.login("standard_user", "secret_sauce")
+        with allure.step("Open Saucedemo homepage"):
+            self.driver.get("https://www.saucedemo.com/")
+        with allure.step("Login as standard_user"):
+            self.login_page.login("standard_user", "secret_sauce")
 
     @pytest.mark.order(1)
     @pytest.mark.smoke

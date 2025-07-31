@@ -5,7 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9c872d0d-d62b-44e1-b654-328776cf4b68" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Jenkinsfile" beforeDir="false" afterPath="$PROJECT_DIR$/Jenkinsfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pytest.ini" beforeDir="false" afterPath="$PROJECT_DIR$/pytest.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/cart/cart_count_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/cart/cart_count_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/cart/cart_total_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/cart/cart_total_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/cart/test_cart_and_summary_prices_consistent.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/cart/test_cart_and_summary_prices_consistent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/checkout/checkout_flow_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/checkout/checkout_flow_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/checkout/checkout_validation_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/checkout/checkout_validation_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/navigation/test_navigation_menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/navigation/test_navigation_menu.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/sort/sorting_dropdown_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/sort/sorting_dropdown_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,38 +42,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python tests.Python tests in valid_login_test.py.executor": "Run",
-    "Python tests.pytest in cart_total_test.py.executor": "Run",
-    "Python tests.pytest in checkout_validation_test.py.executor": "Run",
-    "Python tests.pytest in invalid_login_test.py.executor": "Run",
-    "Python tests.pytest in logout_test.py.executor": "Run",
-    "Python tests.pytest in test_cart_and_summary_prices_consistent.py.executor": "Run",
-    "Python tests.pytest in test_navigation_menu.py.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python tests.Python tests in valid_login_test.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in cart_total_test.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in checkout_validation_test.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in invalid_login_test.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in logout_test.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_cart_and_summary_prices_consistent.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_cart_totals.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest in test_navigation_menu.py.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
-  <component name="RunManager" selected="Python tests.pytest in checkout_validation_test.py">
-    <configuration name="pytest in cart_total_test.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
-      <module name="saucedemo_automation" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/cart" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_parameters" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/cart/cart_total_test.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method v="2" />
-    </configuration>
+}</component>
+  <component name="RunManager" selected="Python tests.pytest in test_cart_totals.py">
     <configuration name="pytest in checkout_validation_test.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="saucedemo_automation" />
       <option name="ENV_FILES" value="" />
@@ -116,6 +109,23 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
+    <configuration name="pytest in test_cart_totals.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="saucedemo_automation" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/cart" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/cart/test_cart_totals.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
     <configuration name="pytest in test_navigation_menu.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="saucedemo_automation" />
       <option name="ENV_FILES" value="" />
@@ -135,11 +145,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.pytest in test_cart_totals.py" />
         <item itemvalue="Python tests.pytest in checkout_validation_test.py" />
         <item itemvalue="Python tests.pytest in test_navigation_menu.py" />
         <item itemvalue="Python tests.pytest in logout_test.py" />
         <item itemvalue="Python tests.pytest in test_cart_and_summary_prices_consistent.py" />
-        <item itemvalue="Python tests.pytest in cart_total_test.py" />
       </list>
     </recent_temporary>
   </component>

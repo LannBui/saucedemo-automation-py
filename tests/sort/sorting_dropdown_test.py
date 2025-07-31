@@ -1,8 +1,11 @@
 import pytest
+import allure
 from pages.login_page import LoginPage
 from pages.product_page import ProductPage
 
 @pytest.mark.usefixtures("driver")
+@allure.epic("Product Listing")
+@allure.feature("Sorting")
 class TestSortingDropdown:
 
     @pytest.fixture(autouse=True)
@@ -10,9 +13,13 @@ class TestSortingDropdown:
         self.driver = driver
         self.login_page = LoginPage(driver)
         self.product_page = ProductPage(driver)
-        self.driver.get("https://www.saucedemo.com/")
-        self.login_page.login(username="standard_user", password="secret_sauce")
+        with allure.step("Open Saucedemo homepage"):
+            self.driver.get("https://www.saucedemo.com/")
+        with allure.step("Login as standard_user"):
+            self.login_page.login(username="standard_user", password="secret_sauce")
 
+    @allure.story("Sorting products")
+    @allure.title("Test sorting dropdown: {option}")
     @pytest.mark.parametrize("option", ["Name (A to Z)", "Name (Z to A)", "Price (low to high)", "Price (high to low)"])
     def test_sorting_dropdown(self, option):
         self.product_page.select_sort_option(option)
