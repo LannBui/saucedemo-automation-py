@@ -6,15 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="9c872d0d-d62b-44e1-b654-328776cf4b68" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pytest.ini" beforeDir="false" afterPath="$PROJECT_DIR$/pytest.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/cart/cart_count_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/cart/cart_count_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/cart/cart_total_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/cart/cart_total_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/cart/test_cart_and_summary_prices_consistent.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/cart/test_cart_and_summary_prices_consistent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/checkout/checkout_flow_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/checkout/checkout_flow_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/checkout/checkout_validation_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/checkout/checkout_validation_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/navigation/test_navigation_menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/navigation/test_navigation_menu.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/sort/sorting_dropdown_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/sort/sorting_dropdown_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jenkinsfile" beforeDir="false" afterPath="$PROJECT_DIR$/Jenkinsfile" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
