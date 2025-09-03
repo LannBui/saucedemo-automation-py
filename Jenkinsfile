@@ -3,7 +3,7 @@ pipeline {
 
   // 🔗 Put your n8n production webhook URL here
   environment {
-    N8N_WEBHOOK_URL = 'http://localhost:5678/webhook-test/ci-summary'
+    N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/ci-summary'
   }
 
   options {
