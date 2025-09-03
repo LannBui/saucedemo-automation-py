@@ -2,12 +2,10 @@ pipeline {
   agent any
 
   environment {
-    N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/ci-summary'
+    N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/ci-summary'  // production URL
   }
 
-  options {
-    timestamps()
-  }
+  options { timestamps() }
 
   stages {
     stage('Checkout') {
@@ -57,29 +55,30 @@ pipeline {
   post {
     always {
       script {
-        // --- Read junit.xml (sandbox-friendly, no rawBuild) ---
+        // === CPS-safe JUnit summary ===
         def junitPath = "${env.WORKSPACE}\\reports\\junit.xml"
         int total = 0, failed = 0, skipped = 0
 
         try {
-          def file = new File(junitPath)
-          if (file.exists()) {
-            def xml = new XmlSlurper().parse(file)
+          if (fileExists(junitPath)) {
+            def xmlText = readFile(junitPath)
+            def xml = new XmlSlurper().parseText(xmlText)
 
             if (xml.name() == 'testsuite') {
+              // Single suite
               total   = (xml.@tests?.text())    ? xml.@tests.toInteger()    : xml.testcase.size()
               failed  = (xml.@failures?.text()) ? xml.@failures.toInteger() : 0
               skipped = (xml.@skipped?.text())  ? xml.@skipped.toInteger()  : 0
             } else {
-              // <testsuites> wrapper
-              if (xml.@tests?.text()) {
-                total   = xml.@tests.toInteger()
-                failed  = (xml.@failures?.text()) ? xml.@failures.toInteger() : 0
-                skipped = (xml.@skipped?.text())  ? xml.@skipped.toInteger()  : 0
-              } else {
-                total   = (xml.testsuite*.@tests*.toInteger()).sum()    ?: 0
-                failed  = (xml.testsuite*.@failures*.toInteger()).sum() ?: 0
-                skipped = (xml.testsuite*.@skipped*.toInteger()).sum()  ?: 0
+              // <testsuites> wrapper → iterate without spread operator
+              total = 0; failed = 0; skipped = 0
+              for (ts in xml.testsuite) {
+                def t = ts.@tests?.text()
+                def f = ts.@failures?.text()
+                def s = ts.@skipped?.text()
+                total   += t ? t.toInteger() : ts.testcase.size()
+                failed  += f ? f.toInteger() : 0
+                skipped += s ? s.toInteger() : 0
               }
             }
           } else {
@@ -91,6 +90,7 @@ pipeline {
 
         int passed = total - failed - skipped
         int durSec = (currentBuild.duration / 1000) as Integer
+
         def payload = [
           job_name    : env.JOB_NAME,
           build_number: (env.BUILD_NUMBER ?: "0") as Integer,
@@ -105,7 +105,7 @@ pipeline {
         ]
         def json = groovy.json.JsonOutput.toJson(payload)
 
-        // --- POST to n8n; do not fail the build if notification fails ---
+        // === Notify n8n (non-fatal if it fails) ===
         try {
           def resp = httpRequest(
             httpMode: 'POST',
@@ -120,10 +120,10 @@ pipeline {
           echo "⚠️ n8n webhook failed: ${e.message}"
           currentBuild.result = currentBuild.result ?: 'UNSTABLE'
         }
-      } // end script
+      }
 
       echo 'Cleaning up...'
-    } // end always
+    }
 
     success  { echo 'Build succeeded with all tests passing.' }
     unstable { echo 'Build marked UNSTABLE due to test failures.' }
