@@ -2,7 +2,20 @@ pipeline {
   agent any
 
   environment {
-    N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/ci-summary'  // use your PRODUCTION webhook URL
+    // n8n webhook (use your Production URL from the Webhook node)
+    N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/ci-summary'
+
+    // Make webdriver-manager use cached drivers (recommended on corp/VPN networks)
+    WDM_OFFLINE = 'true'
+    WDM_LOCAL   = 'true'
+
+    // If you need a pinned chromedriver, set this and point driver_factory.py to use it when present:
+    // CHROMEDRIVER_PATH = "${WORKSPACE}\\bin\\chromedriver.exe"
+
+    // If you need proxy for Python/requests and webdriver-manager, uncomment and set:
+    // HTTP_PROXY  = 'http://proxy:port'
+    // HTTPS_PROXY = 'http://proxy:port'
+    // REQUESTS_CA_BUNDLE = 'C:\\path\\to\\corp-ca.pem'
   }
 
   options { timestamps() }
@@ -46,6 +59,7 @@ pipeline {
 
     stage('Archive Reports') {
       steps {
+        // JUnit may be empty if pytest crashed; don’t fail the pipeline only for that
         junit allowEmptyResults: true, testResults: 'reports/junit.xml'
         archiveArtifacts artifacts: 'reports/report.html', allowEmptyArchive: true
       }
@@ -54,30 +68,36 @@ pipeline {
 
   post {
     always {
-      // 1) Create a simple totals file using PowerShell (sandbox-safe)
+      // Create a simple key=value summary from junit.xml using PowerShell (sandbox-safe)
       bat '''
         powershell -NoProfile -ExecutionPolicy Bypass -Command ^
           "$p = Join-Path $env:WORKSPACE 'reports\\junit.xml';" ^
           "if (Test-Path $p) {" ^
           "  [xml]$x = Get-Content -Raw $p;" ^
-          "  $tests=0; $fail=0; $skip=0;" ^
-          "  if ($x.testsuite) { $tests=[int]$x.testsuite.tests; $fail=[int]$x.testsuite.failures; $skip=[int]$x.testsuite.skipped }" ^
-          "  elseif ($x.testsuites) { foreach ($s in $x.testsuites.testsuite) { $tests += [int]$s.tests; $fail += [int]$s.failures; $skip += [int]$s.skipped } }" ^
-          "  \\"TOTAL=$tests`nFAILED=$fail`nSKIPPED=$skip\\" | Set-Content -NoNewline (Join-Path $env:WORKSPACE 'reports\\summary.txt');" ^
-          "} else { \\"TOTAL=0`nFAILED=0`nSKIPPED=0\\" | Set-Content -NoNewline (Join-Path $env:WORKSPACE 'reports\\summary.txt'); }"
+          "  $tests=0; $fail=0; $skip=0; $err=0;" ^
+          "  if ($x.testsuite) {" ^
+          "    $tests=[int]$x.testsuite.tests; $fail=[int]$x.testsuite.failures; $skip=[int]$x.testsuite.skipped; $err=[int]$x.testsuite.errors" ^
+          "  } elseif ($x.testsuites) {" ^
+          "    foreach ($s in $x.testsuites.testsuite) { $tests += [int]$s.tests; $fail += [int]$s.failures; $skip += [int]$s.skipped; $err += [int]$s.errors }" ^
+          "  }" ^
+          "  \\"TOTAL=$tests`nFAILED=$fail`nSKIPPED=$skip`nERRORS=$err\\" | Set-Content -NoNewline (Join-Path $env:WORKSPACE 'reports\\summary.txt');" ^
+          "} else { \\"TOTAL=0`nFAILED=0`nSKIPPED=0`nERRORS=0\\" | Set-Content -NoNewline (Join-Path $env:WORKSPACE 'reports\\summary.txt'); }"
       '''
 
       script {
-        // 2) Read the summary and build payload
+        // Read key=value totals
         def txt = readFile("${env.WORKSPACE}\\reports\\summary.txt")
+
         def mTotal   = (txt =~ /TOTAL=(\\d+)/)
         def mFailed  = (txt =~ /FAILED=(\\d+)/)
         def mSkipped = (txt =~ /SKIPPED=(\\d+)/)
+        def mErrors  = (txt =~ /ERRORS=(\\d+)/)
 
         int total   = mTotal  ? mTotal[0][1].toInteger()  : 0
         int failed  = mFailed ? mFailed[0][1].toInteger() : 0
         int skipped = mSkipped? mSkipped[0][1].toInteger(): 0
-        int passed  = total - failed - skipped
+        int errors  = mErrors ? mErrors[0][1].toInteger() : 0
+        int passed  = Math.max(0, total - failed - skipped - errors)
         int durSec  = (currentBuild.duration / 1000) as Integer
 
         def payload = [
@@ -89,12 +109,13 @@ pipeline {
           passed      : passed,
           failed      : failed,
           skipped     : skipped,
+          errors      : errors,
           duration_sec: durSec,
           status      : currentBuild.currentResult
         ]
         def json = groovy.json.JsonOutput.toJson(payload)
 
-        // 3) Notify n8n (don’t fail build if this errors)
+        // Notify n8n (don’t fail the build if notify fails)
         try {
           def resp = httpRequest(
             httpMode: 'POST',
@@ -109,10 +130,10 @@ pipeline {
           echo "⚠️ n8n webhook failed: ${e.message}"
           currentBuild.result = currentBuild.result ?: 'UNSTABLE'
         }
-      } // end script
+      }
 
       echo 'Cleaning up...'
-    } // end always
+    }
 
     success  { echo 'Build succeeded with all tests passing.' }
     unstable { echo 'Build marked UNSTABLE due to test failures.' }
