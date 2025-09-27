@@ -45,7 +45,7 @@ pipeline {
       steps {
         git url: 'https://github.com/LannBui/saucedemo-automation-py.git',
             branch: 'main',
-            credentialsId: 'mlan-github-creds'
+            credentialsId: 'github-token'
       }
     }
 
