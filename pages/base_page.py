@@ -1,4 +1,3 @@
-from tkinter.tix import Select
 
 from select import select
 from selenium.common import NoSuchElementException

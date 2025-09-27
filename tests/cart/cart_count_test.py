@@ -7,6 +7,8 @@ from pages.cart_page import CartPage
 from pages.product_page import ProductPage
 
 @pytest.mark.usefixtures("driver")
+@pytest.mark.cart
+@pytest.mark.regression
 @allure.epic("Cart Functionality")
 @allure.feature("Cart Count and Operations")
 class TestCartCount:

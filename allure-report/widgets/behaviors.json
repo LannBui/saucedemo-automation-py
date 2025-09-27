@@ -1,1 +1,1 @@
-{"total":0,"items":[]}
+{"total":15,"items":[{"uid":"9d419f01ea369ee6548388dae6e51cf5","name":"Cart Functionality","statistic":{"failed":0,"broken":0,"skipped":0,"passed":2,"unknown":0,"total":2}},{"uid":"e66154ca1b7ad81f145db1dcfdc8c1e7","name":"Checkout","statistic":{"failed":0,"broken":0,"skipped":0,"passed":2,"unknown":0,"total":2}},{"uid":"1cbc5ce78f4f6923f456c0d0e9f7111d","name":"Product Listing","statistic":{"failed":0,"broken":0,"skipped":0,"passed":1,"unknown":0,"total":1}}]}

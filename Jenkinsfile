@@ -1,10 +1,30 @@
 pipeline {
   agent any
 
-  environment {
-    // n8n webhook (use your Production URL from the Webhook node)
-    N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/ci-summary'
+  parameters {
+    choice(
+      name: 'TEST_SUITE',
+      choices: ['smoke', 'regression', 'login', 'cart', 'checkout', 'full'],
+      description: 'Select test suite to run'
+    )
+    choice(
+      name: 'ENVIRONMENT',
+      choices: ['dev', 'staging', 'prod'],
+      description: 'Select environment to test against'
+    )
+    booleanParam(
+      name: 'RUN_DOCKER_TESTS',
+      defaultValue: false,
+      description: 'Run tests in Docker container'
+    )
+    booleanParam(
+      name: 'GENERATE_ALLURE_REPORT',
+      defaultValue: true,
+      description: 'Generate Allure report'
+    )
+  }
 
+  environment {
     // Make webdriver-manager use cached drivers (recommended on corp/VPN networks)
     WDM_OFFLINE = 'true'
     WDM_LOCAL   = 'true'
@@ -29,6 +49,25 @@ pipeline {
       }
     }
 
+    stage('Environment Setup') {
+      steps {
+        script {
+          // Use parameter or set based on branch
+          if (params.ENVIRONMENT) {
+            env.ENVIRONMENT = params.ENVIRONMENT
+          } else if (env.BRANCH_NAME == 'main') {
+            env.ENVIRONMENT = 'prod'
+          } else if (env.BRANCH_NAME == 'staging') {
+            env.ENVIRONMENT = 'staging'
+          } else {
+            env.ENVIRONMENT = 'dev'
+          }
+          echo "Running tests against ${env.ENVIRONMENT} environment"
+          echo "Test suite: ${params.TEST_SUITE}"
+        }
+      }
+    }
+
     stage('Set up Python') {
       steps {
         bat 'python --version'
@@ -43,100 +82,110 @@ pipeline {
       }
     }
 
-    stage('Run Pytest') {
+    stage('Run Tests') {
       steps {
         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-          bat '''
-            if not exist reports mkdir reports
-            pytest --headless --incognito ^
-                   --junitxml=reports\\junit.xml ^
-                   --html=reports\\report.html --self-contained-html ^
-                   -q
-          '''
+          script {
+            def allureFlag = params.GENERATE_ALLURE_REPORT ? '--allure' : ''
+            def testSuite = params.TEST_SUITE ?: 'smoke'
+            
+            bat """
+              if not exist reports mkdir reports
+              python run_test_suite.py ${testSuite} --headless --incognito ^
+                     --junitxml=reports\\junit.xml ^
+                     --html=reports\\report.html --self-contained-html ^
+                     ${allureFlag} ^
+                     -q
+            """
+          }
+        }
+      }
+    }
+
+    stage('Docker Test (Optional)') {
+      when {
+        expression { params.RUN_DOCKER_TESTS == true }
+      }
+      steps {
+        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+          script {
+            def testSuite = params.TEST_SUITE ?: 'smoke'
+            def allureFlag = params.GENERATE_ALLURE_REPORT ? '--alluredir=allure-results-docker' : ''
+            
+            // Build Docker image
+            bat 'docker build -t saucedemo-automation .'
+            
+            // Run tests in Docker
+            bat """
+              docker run --rm -e ENVIRONMENT=${env.ENVIRONMENT} --entrypoint python saucedemo-automation -m pytest -m ${testSuite} --headless --incognito ^
+                     --junitxml=reports\\junit-docker.xml ^
+                     --html=reports\\report-docker.html --self-contained-html ^
+                     ${allureFlag} ^
+                     -q
+            """
+          }
         }
       }
     }
 
     stage('Archive Reports') {
       steps {
-        // JUnit may be empty if pytest crashed; don’t fail the pipeline only for that
+        // Archive JUnit results
         junit allowEmptyResults: true, testResults: 'reports/junit.xml'
+        
+        // Archive HTML reports
         archiveArtifacts artifacts: 'reports/report.html', allowEmptyArchive: true
+        
+        // Archive Docker reports if they exist
+        script {
+          if (fileExists('reports/junit-docker.xml')) {
+            junit allowEmptyResults: true, testResults: 'reports/junit-docker.xml'
+          }
+          if (fileExists('reports/report-docker.html')) {
+            archiveArtifacts artifacts: 'reports/report-docker.html', allowEmptyArchive: true
+          }
+        }
       }
     }
   } // end stages
 
   post {
     always {
-      // Create a simple key=value summary from junit.xml using PowerShell (sandbox-safe)
-      bat '''
-        powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-          "$p = Join-Path $env:WORKSPACE 'reports\\junit.xml';" ^
-          "if (Test-Path $p) {" ^
-          "  [xml]$x = Get-Content -Raw $p;" ^
-          "  $tests=0; $fail=0; $skip=0; $err=0;" ^
-          "  if ($x.testsuite) {" ^
-          "    $tests=[int]$x.testsuite.tests; $fail=[int]$x.testsuite.failures; $skip=[int]$x.testsuite.skipped; $err=[int]$x.testsuite.errors" ^
-          "  } elseif ($x.testsuites) {" ^
-          "    foreach ($s in $x.testsuites.testsuite) { $tests += [int]$s.tests; $fail += [int]$s.failures; $skip += [int]$s.skipped; $err += [int]$s.errors }" ^
-          "  }" ^
-          "  \\"TOTAL=$tests`nFAILED=$fail`nSKIPPED=$skip`nERRORS=$err\\" | Set-Content -NoNewline (Join-Path $env:WORKSPACE 'reports\\summary.txt');" ^
-          "} else { \\"TOTAL=0`nFAILED=0`nSKIPPED=0`nERRORS=0\\" | Set-Content -NoNewline (Join-Path $env:WORKSPACE 'reports\\summary.txt'); }"
-      '''
-
+      // Generate Allure report if allure-results exist
       script {
-        // Read key=value totals
-        def txt = readFile("${env.WORKSPACE}\\reports\\summary.txt")
-
-        def mTotal   = (txt =~ /TOTAL=(\\d+)/)
-        def mFailed  = (txt =~ /FAILED=(\\d+)/)
-        def mSkipped = (txt =~ /SKIPPED=(\\d+)/)
-        def mErrors  = (txt =~ /ERRORS=(\\d+)/)
-
-        int total   = mTotal  ? mTotal[0][1].toInteger()  : 0
-        int failed  = mFailed ? mFailed[0][1].toInteger() : 0
-        int skipped = mSkipped? mSkipped[0][1].toInteger(): 0
-        int errors  = mErrors ? mErrors[0][1].toInteger() : 0
-        int passed  = Math.max(0, total - failed - skipped - errors)
-        int durSec  = (currentBuild.duration / 1000) as Integer
-
-        def payload = [
-          job_name    : env.JOB_NAME,
-          build_number: (env.BUILD_NUMBER ?: "0") as Integer,
-          build_url   : env.BUILD_URL,
-          branch      : env.BRANCH_NAME ?: 'main',
-          total       : total,
-          passed      : passed,
-          failed      : failed,
-          skipped     : skipped,
-          errors      : errors,
-          duration_sec: durSec,
-          status      : currentBuild.currentResult
-        ]
-        def json = groovy.json.JsonOutput.toJson(payload)
-
-        // Notify n8n (don’t fail the build if notify fails)
-        try {
-          def resp = httpRequest(
-            httpMode: 'POST',
-            url: N8N_WEBHOOK_URL,
-            contentType: 'APPLICATION_JSON',
-            requestBody: json,
-            timeout: 30,
-            validResponseCodes: '200:299'
-          )
-          echo "n8n webhook response: ${resp.status}"
-        } catch (e) {
-          echo "⚠️ n8n webhook failed: ${e.message}"
-          currentBuild.result = currentBuild.result ?: 'UNSTABLE'
+        if (fileExists('allure-results')) {
+          bat '''
+            if exist allure-results (
+              echo "Generating Allure report..."
+              allure generate allure-results --clean -o allure-report
+              echo "Allure report generated in allure-report directory"
+            )
+          '''
         }
       }
 
-      echo 'Cleaning up...'
+      // Archive Allure report if it exists
+      script {
+        if (fileExists('allure-report')) {
+          archiveArtifacts artifacts: 'allure-report/**', allowEmptyArchive: true
+          echo "Allure report archived"
+        }
+      }
+
+      echo 'Pipeline completed. Check reports for detailed results.'
     }
 
-    success  { echo 'Build succeeded with all tests passing.' }
-    unstable { echo 'Build marked UNSTABLE due to test failures.' }
-    failure  { echo 'Build failed due to critical errors.' }
+    success  { 
+      echo '✅ Build succeeded with all tests passing.' 
+      echo '📊 Check the archived reports for detailed test results.'
+    }
+    unstable { 
+      echo '⚠️ Build marked UNSTABLE due to test failures.' 
+      echo '📊 Check the archived reports for detailed test results.'
+    }
+    failure  { 
+      echo '❌ Build failed due to critical errors.' 
+      echo '📊 Check the archived reports for detailed test results.'
+    }
   } // end post
 } // end pipeline
