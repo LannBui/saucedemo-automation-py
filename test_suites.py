@@ -127,3 +127,4 @@ if __name__ == "__main__":
     print("\nExample: Run smoke tests")
     smoke_runner = TestSuiteRunner('smoke')
     print(f"Command: {' '.join(smoke_runner.get_pytest_command(['--headless', '--incognito']))}")
+

@@ -129,3 +129,4 @@ class SimpleConfig:
 
 # Global configuration instance
 config = SimpleConfig()
+

@@ -177,42 +177,37 @@ pip install --upgrade -r requirements.txt
 
 #### First Time Setup
 ```bash
-# 1. Activate virtual environment
-source venv/bin/activate
-
-# 2. Build Docker image
+# 1. Build Docker image
 docker build -t saucedemo-automation .
 
-# 3. Run smoke tests
-python run_test_suite.py smoke --headless --incognito --verbose
+# 2. Run smoke tests in Docker
+docker run --rm --entrypoint python saucedemo-automation run_test_suite.py smoke --headless --incognito --verbose
 
-# 4. Generate Allure report
-python -m pytest tests/ --headless --incognito --alluredir=allure-results
+# 3. Generate Allure report
+docker run --rm --entrypoint python saucedemo-automation -m pytest tests/ --headless --incognito --alluredir=allure-results
 allure generate allure-results --clean -o allure-report
 allure open allure-report
 ```
 
 #### Daily Development
 ```bash
-# Run smoke tests (fast)
-python run_test_suite.py smoke --headless --incognito
+# Run smoke tests (fast) - Docker approach
+docker run --rm --entrypoint python saucedemo-automation run_test_suite.py smoke --headless --incognito
 
-# Run specific test file
-python -m pytest tests/login/valid_login_test.py --headless --incognito -v
+# Run specific test file - Docker approach
+docker run --rm --entrypoint python saucedemo-automation -m pytest tests/login/valid_login_test.py --headless --incognito -v
 
-# Run with Allure
-python run_test_suite.py smoke --headless --incognito --allure
+# Run with Allure - Docker approach
+docker run --rm --entrypoint python saucedemo-automation run_test_suite.py smoke --headless --incognito --allure
 allure open allure-report
 ```
 
-#### CI/CD Pipeline
+#### CI/CD Pipeline (Jenkins)
 ```bash
-# Build and test
-docker build -t saucedemo-automation .
-docker run --rm --entrypoint python saucedemo-automation -m pytest -m smoke --headless --incognito -v
-
-# Full regression
-docker run --rm --entrypoint python saucedemo-automation -m pytest tests/ --headless --incognito --alluredir=allure-results
+# Jenkins automatically handles:
+# 1. docker build -t saucedemo-automation .
+# 2. docker run with volume mounts for reports
+# 3. Archive reports and Allure results
 ```
 
 ### 📝 Important Notes
@@ -284,3 +279,4 @@ python -m pytest --collect-only
 ---
 **Last Updated**: $(date)
 **Project**: SauceDemo Automation with Python + pytest + Docker + Allure
+

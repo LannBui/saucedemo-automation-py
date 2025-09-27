@@ -214,3 +214,4 @@ docker run --rm --entrypoint python saucedemo-automation -m pytest -m smoke --he
 ```
 
 This system provides the same flexibility as TestNG groups but with Python's pytest framework! 🎉
+
