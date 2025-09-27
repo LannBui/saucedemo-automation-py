@@ -5,16 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="35b8a7b9-e214-436c-9ea3-2274180c2e90" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JENKINS_SETUP.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Jenkinsfile" beforeDir="false" afterPath="$PROJECT_DIR$/Jenkinsfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PROJECT_NOTES.md" beforeDir="false" afterPath="$PROJECT_DIR$/PROJECT_NOTES.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TEST_SUITE_GUIDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/TEST_SUITE_GUIDE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/config/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/dev.properties" beforeDir="false" afterPath="$PROJECT_DIR$/config/dev.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/simple_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/simple_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_test_suite.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_test_suite.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_suites.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_suites.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
